@@ -1,16 +1,32 @@
 version: '3.6'
 
 services:
+  # Em desenvolvimento roda o webpack-dev-server (hot reload) em vez do nginx
+  # com o build estático da imagem de produção.
   interface:
+    image: node:9.11.2
+    build: !reset null
+    working_dir: /app
+    entrypoint: []
+    command: sh -c "npm install && npm start"
     volumes:
       - ./interface:/app
+      - interface_node_modules:/app/node_modules
     ports:
-      - 5000
+      - 3000
     environment:
       - APP_ENV=development
+      - CHOKIDAR_USEPOLLING=true
 
   api:
     volumes:
       - ./api:/app
     ports:
       - 8666
+
+  nginx:
+    volumes:
+      - ./conf/nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  interface_node_modules:
